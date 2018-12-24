@@ -20,8 +20,8 @@ int gameover = false;//遊戲是否結束
 int BOT_value[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 int player_value[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 int test = 0;
-int pin[10] = {0,1,2,3,4,5,6,7,8,9};
-int color[10] = {0,0,0,0,0,0,0,0,0,0};
+int pin[10] = {0,1,2,3,4,5,6,7,8,9};//宣告LED陣列
+int color[10] = {0,0,0,0,0,0,0,0,0,0};//宣告LED顯示燈色陣列
 void setup(){
 	Serial.begin(9600);
 	pinMode(31,OUTPUT);
@@ -37,9 +37,13 @@ void setup(){
 void loop(){
 	int key;
 	key = get_key(); //在loop中取得選擇的位置,若沒選擇則回傳0
-	int lamp = chess(key,&the_round);
-	int *thecolor = &color[key];
-	*thecolor = lamp;
+	
+	int *thecolor = &color[key]; //選擇要改變哪個LED燈的狀態
+	if(*thecolor == 0){
+		int lamp = chess(key,&the_round);
+		*thecolor = lamp;
+	}
+	
 	for(int i=1;i<10;i++){
 		display_led(&pin[i],&color[i]);
 	}
@@ -73,6 +77,7 @@ int get_key(){  // 透過Keypad物件的getKey()function讀取按鍵的字元
 	}
 	return thekey;
 }
+//確認現在是哪一方下棋
 int chess(int key,int *the_round){
 	if(*the_round == 0 && key!=0){
 		*the_round = (*the_round+1)%2 ;
@@ -83,6 +88,7 @@ int chess(int key,int *the_round){
 }
 
 //R = 1/G = 2
+//掃描
 void display_led(int *tpin,int *tcolor){
 	int pin = *tpin;
 	int color = *tcolor;
