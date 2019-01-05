@@ -19,9 +19,9 @@ int enableBOT = 0;//是否開啟電腦對手(默認關閉)
 int gameover = false;//遊戲是否結束
 int BOT_value[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 int player_value[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
-int test = 0;
 int pin[10] = {0,1,2,3,4,5,6,7,8,9};//宣告LED陣列
 int color[10] = {0,0,0,0,0,0,0,0,0,0};//宣告LED顯示燈色陣列
+int jin_state[9] = {0,0,0,0,0,0,0,0,0}; //宣告顯示棋盤狀態
 void setup(){
 	Serial.begin(9600);
 	pinMode(31,OUTPUT);
@@ -33,20 +33,75 @@ void setup(){
 	pinMode(43,OUTPUT);
 	pinMode(45,OUTPUT);
 	pinMode(47,OUTPUT);
+	pinMode(11,OUTPUT);
+	pinMode(12,OUTPUT);
 }
 void loop(){
 	int key;
 	key = get_key(); //在loop中取得選擇的位置,若沒選擇則回傳0
-	
 	int *thecolor = &color[key]; //選擇要改變哪個LED燈的狀態
-	if(*thecolor == 0){
-		int lamp = chess(key,&the_round);
+	if(*thecolor == 0){ //如果選擇的燈沒有被改變選擇
+		int lamp = chess(key,&the_round); //取得顯示的顏色
 		*thecolor = lamp;
+		check_win(&jin);
+		play(key,&jin,&the_round,&jin_state);
+	}
+	for(int i=1;i<10;i++){
+		display_led(&pin[i],&color[i]);//將選擇的顏色顯示出來
 	}
 	
-	for(int i=1;i<10;i++){
-		display_led(&pin[i],&color[i]);
+}
+int BOT(int player_value,int BOT_value){ //BOT
+	
+}
+int play(int key,int jin[][3][3],int *XorO,int jin_state[][9]){
+	if(key!=0){
+		if(key==1 && *jin_state[0]==0){
+			*jin[1][1] = *XorO;
+			*jin_state[0] = 1;
+		}else if(key==2 && *jin_state[1]==0){
+			*jin[1][2] = *XorO;
+			*jin_state[1] = 1;
+		}else if(key==3 && *jin_state[2]==0){
+			*jin[1][3] = *XorO;
+			*jin_state[2] = 1;
+		}else if(key==4 && *jin_state[3]==0){
+			*jin[2][1] = *XorO;
+			*jin_state[3] = 1;
+		}else if(key==5 && *jin_state[4]==0){
+			*jin[2][2] = *XorO;
+			*jin_state[4] = 1;
+		}else if(key==6 && *jin_state[5]==0){
+			*jin[2][3] = *XorO;
+			*jin_state[5] = 1;
+		}else if(key==7 && *jin_state[6]==0){
+			*jin[3][1] = *XorO;
+			*jin_state[6] = 1;
+		}else if(key==8 && *jin_state[7]==0){
+			*jin[3][2] = *XorO;
+			*jin_state[7] = 1;
+		}else if(key==9 && *jin_state[8]==0){
+			*jin[3][3] = *XorO;
+			*jin_state[8] = 1;
+		}
 	}
+}
+int check_win(int jin[][3][3]){
+	int score_HORI[3] = {0,0,0}; //紀錄橫排分數,若為3或-3表示連成一直線
+	int score_STRAI[3] = {0,0,0}; //紀錄直排分數,若為3或-3表示連成一直線
+	for(int i=0;i<3;i++){
+		for(int j=0;j<3;j++){
+			Serial.println("===================");
+			Serial.println(*jin[i][j]);
+			Serial.println("===================");
+			score_HORI[i]+= *jin[i][j];
+			score_STRAI[j]+= * jin[i][j];
+			Serial.println("-------");
+			Serial.println(score_HORI[i]);
+			Serial.println(score_STRAI[j]);
+		}
+	}
+	
 	
 }
 int get_key(){  // 透過Keypad物件的getKey()function讀取按鍵的字元
